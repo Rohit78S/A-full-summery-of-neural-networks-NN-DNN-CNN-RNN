@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #ebecef 0%, #eae2f2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #667eea;
+    margin: 0 0 10px 0;
+    font-size: clamp(24px, 6vw, 36px);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #764ba2;
+    margin: 0 0 30px 0;
+    font-size: clamp(18px, 4vw, 26px);
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.author {
+    text-align: center;
+    color: #666;
+    font-size: clamp(12px, 2.5vw, 14px);
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.viz-container {
+    width: 100%;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+}
+
+.neuron {
+    fill: #fff;
+    stroke: #667eea;
+    stroke-width: 3;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.neuron:hover {
+    fill: #667eea;
+    stroke: #764ba2;
+    stroke-width: 4;
+}
+
+.connection {
+    stroke: #b8c5f0;
+    stroke-width: 1.5;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.connection.highlight {
+    stroke: #764ba2;
+    stroke-width: 4;
+    opacity: 1;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 600;
+    fill: #333;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+.layer-label {
+    font-size: 18px;
+    font-weight: 700;
+    fill: #667eea;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+.weight-label {
+    font-size: 16px;
+    font-weight: 600;
+    fill: #764ba2;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+.info-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    line-height: 1.8;
+}
+
+.info-container h3 {
+    color: #667eea;
+    font-size: clamp(20px, 4vw, 24px);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.info-container h4 {
+    color: #764ba2;
+    font-size: clamp(16px, 3vw, 20px);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.info-container p {
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+.info-container ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.info-container li {
+    margin-bottom: 10px;
+}
+
+.architecture-diagram {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(11px, 2vw, 14px);
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+.architecture-diagram pre {
+    margin: 0;
+    white-space: pre;
+}
+
+.highlight-box {
+    background: #f0f4ff;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .viz-container,
+    .info-container {
+        padding: 15px;
+    }
+    
+    .label {
+        font-size: 12px;
+    }
+    
+    .layer-label {
+        font-size: 14px;
+    }
+    
+    .weight-label {
+        font-size: 13px;
+    }
+    
+    .info-container ul {
+        margin-left: 15px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .label {
+        font-size: 10px;
+    }
+    
+    .layer-label {
+        font-size: 12px;
+    }
+    
+    .weight-label {
+        font-size: 11px;
+    }
+    
+    .architecture-diagram {
+        font-size: 10px;
+        padding: 15px;
+    }
+}
