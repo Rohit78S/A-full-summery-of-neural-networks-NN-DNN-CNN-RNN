@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Pass/Fail AI - Neural Network Visualization</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ebecef 0%, #eae2f2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin: 0 0 10px 0;
+            font-size: clamp(24px, 6vw, 36px);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            text-align: center;
+            color: #764ba2;
+            margin: 0 0 30px 0;
+            font-size: clamp(18px, 4vw, 26px);
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .author {
+            text-align: center;
+            color: #666;
+            font-size: clamp(12px, 2.5vw, 14px);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .viz-container {
+            width: 100%;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        
+        .neuron {
+            fill: #fff;
+            stroke: #667eea;
+            stroke-width: 3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .neuron:hover {
+            fill: #667eea;
+            stroke: #764ba2;
+            stroke-width: 4;
+        }
+        
+        .connection {
+            stroke: #b8c5f0;
+            stroke-width: 1.5;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        
+        .connection.highlight {
+            stroke: #764ba2;
+            stroke-width: 4;
+            opacity: 1;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #333;
+            text-anchor: middle;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .layer-label {
+            font-size: 18px;
+            font-weight: 700;
+            fill: #667eea;
+            text-anchor: middle;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .weight-label {
+            font-size: 16px;
+            font-weight: 600;
+            fill: #764ba2;
+            text-anchor: middle;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .info-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            line-height: 1.8;
+        }
+        
+        .info-container h3 {
+            color: #667eea;
+            font-size: clamp(20px, 4vw, 24px);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-container h4 {
+            color: #764ba2;
+            font-size: clamp(16px, 3vw, 20px);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-container p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .info-container ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .info-container li {
+            margin-bottom: 10px;
+        }
+        
+        .architecture-diagram {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: clamp(11px, 2vw, 14px);
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+        
+        .architecture-diagram pre {
+            margin: 0;
+            white-space: pre;
+        }
+        
+        .highlight-box {
+            background: #f0f4ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .viz-container,
+            .info-container {
+                padding: 15px;
+            }
+            
+            .label {
+                font-size: 12px;
+            }
+            
+            .layer-label {
+                font-size: 14px;
+            }
+            
+            .weight-label {
+                font-size: 13px;
+            }
+            
+            .info-container ul {
+                margin-left: 15px;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 480px) {
+            .label {
+                font-size: 10px;
+            }
+            
+            .layer-label {
+                font-size: 12px;
+            }
+            
+            .weight-label {
+                font-size: 11px;
+            }
+            
+            .architecture-diagram {
+                font-size: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Student Pass/Fail AI</h1>
+        <h2>Neural Network from Scratch in NumPy</h2>
+        <p class="author">Made by Rohit</p>
+        
+        <div class="viz-container">
+            <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                
+                <g id="connections-input-hidden">
+                    <line class="connection input-1 hidden-1" x1="100" y1="200" x2="350" y2="120"/>
+                    <line class="connection input-1 hidden-2" x1="100" y1="200" x2="350" y2="220"/>
+                    <line class="connection input-1 hidden-3" x1="100" y1="200" x2="350" y2="320"/>
+                    <line class="connection input-1 hidden-4" x1="100" y1="200" x2="350" y2="420"/>
+                    
+                    <line class="connection input-2 hidden-1" x1="100" y1="400" x2="350" y2="120"/>
+                    <line class="connection input-2 hidden-2" x1="100" y1="400" x2="350" y2="220"/>
+                    <line class="connection input-2 hidden-3" x1="100" y1="400" x2="350" y2="320"/>
+                    <line class="connection input-2 hidden-4" x1="100" y1="400" x2="350" y2="420"/>
+                </g>
+                
+                <g id="connections-hidden-output">
+                    <line class="connection hidden-1 output-1" x1="350" y1="120" x2="600" y2="220"/>
+                    <line class="connection hidden-1 output-2" x1="350" y1="120" x2="600" y2="380"/>
+
+                    <line class="connection hidden-2 output-1" x1="350" y1="220" x2="600" y2="220"/>
+                    <line class="connection hidden-2 output-2" x1="350" y1="220" x2="600" y2="380"/>
+
+                    <line class="connection hidden-3 output-1" x1="350" y1="320" x2="600" y2="220"/>
+                    <line class="connection hidden-3 output-2" x1="350" y1="320" x2="600" y2="380"/>
+
+                    <line class="connection hidden-4 output-1" x1="350" y1="420" x2="600" y2="220"/>
+                    <line class="connection hidden-4 output-2" x1="350" y1="420" x2="600" y2="380"/>
+                </g>
+                
+                <g id="input-layer">
+                    <text class="layer-label" x="100" y="80">Input Layer</text>
+                    <text class="label" x="100" y="105">(2 Neurons)</text>
+                    
+                    <circle class="neuron" id="input-1" cx="100" cy="200" r="30"/>
+                    <text class="label" x="100" y="205">Score</text>
+                    
+                    <circle class="neuron" id="input-2" cx="100" cy="400" r="30"/>
+                    <text class="label" x="100" y="405">Study</text>
+                    <text class="label" x="100" y="420">Hours</text>
+                </g>
+                
+                <g id="hidden-layer">
+                    <text class="layer-label" x="350" y="50">Hidden Layer</text>
+                    <text class="label" x="350" y="75">(4 Neurons)</text>
+                    
+                    <circle class="neuron" id="hidden-1" cx="350" cy="120" r="25"/>
+                    <circle class="neuron" id="hidden-2" cx="350" cy="220" r="25"/>
+                    <circle class="neuron" id="hidden-3" cx="350" cy="320" r="25"/>
+                    <circle class="neuron" id="hidden-4" cx="350" cy="420" r="25"/>
+                </g>
+                
+                <g id="output-layer">
+                    <text class="layer-label" x="600" y="80">Output Layer</text>
+                    <text class="label" x="600" y="105">(2 Neurons)</text>
+                    
+                    <circle class="neuron" id="output-1" cx="600" cy="220" r="30"/>
+                    <text class="label" x="600" y="225">FAIL</text>
+                    
+                    <circle class="neuron" id="output-2" cx="600" cy="380" r="30"/>
+                    <text class="label" x="600" y="385">PASS</text>
+                </g>
+                
+                <text class="weight-label" x="225" y="240">Weights: 2×4</text>
+                <text class="weight-label" x="475" y="300">Weights: 4×2</text>
+            </svg>
+        </div>
+        
+        <div class="info-container">
+            <h3>Student Pass/Fail AI (Neural Network from Scratch in NumPy)</h3>
+            
+            <p>This project is a complete, functional Artificial Intelligence built from the ground up using only <strong>NumPy</strong>. It demonstrates the core mathematics and logic of deep learning without relying on any high-level libraries like TensorFlow or Keras.</p>
+            
+            <p>The AI is trained to predict whether a student will <strong>"Pass"</strong> or <strong>"Fail"</strong> based on two features: their <strong>Score</strong> and their <strong>Study Hours</strong>.</p>
+            
+            <h4>Network Architecture (2-4-2)</h4>
+            
+            <p>This network uses a simple Multi-Layer Perceptron (MLP) architecture with one hidden layer. The flow of information is as follows:</p>
+            
+            <div class="architecture-diagram">
+                <pre>
+[Input Layer] (2 Neurons)
+     ( )  [Score]
+     ( )  [Study Hours]
+      |
+      |  (Weights: 2×4) - Connects 2 input neurons to 4 hidden neurons
+      v
+[Hidden Layer] (4 Neurons) - Uses Sigmoid Activation
+     ( )
+     ( )
+     ( )
+     ( )
+      |
+      |  (Weights: 4×2) - Connects 4 hidden neurons to 2 output neurons
+      v
+[Output Layer] (2 Neurons) - Uses Softmax Activation
+     ( )  [FAIL]
+     ( )  [PASS]
+                </pre>
+            </div>
+            
+            <h4>Key Components Explained</h4>
+            
+            <div class="highlight-box">
+                <p><strong>🔢 Weights & Biases:</strong></p>
+                <ul>
+                    <li><strong>Hidden Weights (2×4):</strong> Random values multiplied by 0.01 for small initial learning. Shape (2,4) connects input to hidden layer.</li>
+                    <li><strong>Hidden Biases (4,):</strong> One bias per hidden neuron, starting from zero.</li>
+                    <li><strong>Output Weights (4×2):</strong> Connects 4 hidden neurons to 2 output neurons.</li>
+                    <li><strong>Output Biases (2,):</strong> One bias per output neuron, initialized to 0.01.</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>🎯 Activation Functions:</strong></p>
+                <ul>
+                    <li><strong>Sigmoid:</strong> Squashes values to 0-1 range. Formula: 1 / (1 + e^(-x))</li>
+                    <li><strong>Softmax:</strong> Converts output to probabilities that sum to 1. Perfect for classification!</li>
+                    <li><strong>Sigmoid Derivative:</strong> Used in backpropagation: x * (1 - x)</li>
+                </ul>
+            </div>
+            
+            <h4>Training Process (1000 Epochs)</h4>
+            
+            <p>Each epoch follows this cycle:</p>
+            
+            <div class="highlight-box">
+                <p><strong>1️⃣ Forward Pass:</strong></p>
+                <ul>
+                    <li><strong>Input → Hidden:</strong> hidden_inputs = (data × weights) + bias</li>
+                    <li><strong>Apply Sigmoid:</strong> hidden_outputs = sigmoid(hidden_inputs) → Values like [0.8, 0.6, 0.9, 0.7]</li>
+                    <li><strong>Hidden → Output:</strong> output_inputs = (hidden_outputs × weights) + bias</li>
+                    <li><strong>Apply Softmax:</strong> output_probs = softmax(output_inputs) → [0.2, 0.8] (80% PASS, 20% FAIL)</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>2️⃣ Calculate Error (Cross-Entropy Loss):</strong></p>
+                <ul>
+                    <li>Compare prediction [0.2, 0.8] with truth [0, 1]</li>
+                    <li>Error = [0.2, -0.2]</li>
+                    <li>Loss = -mean(sum(labels × log(predictions)))</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>3️⃣ Backward Pass (Backpropagation):</strong></p>
+                <ul>
+                    <li><strong>Output Layer:</strong> Calculate error at output neurons</li>
+                    <li><strong>Update Output Weights:</strong> weights -= (learning_rate × gradient) / num_samples</li>
+                    <li><strong>Update Output Biases:</strong> biases -= learning_rate × average_error</li>
+                    <li><strong>Hidden Layer:</strong> Propagate error back to hidden neurons</li>
+                    <li><strong>Update Hidden Weights & Biases:</strong> Same formula as output layer</li>
+                </ul>
+            </div>
+            
+            <h4>Hyperparameters</h4>
+            
+            <div class="highlight-box">
+                <ul>
+                    <li><strong>Learning Rate: 0.1</strong> - Controls how much weights change in each update (moderate learning speed)</li>
+                    <li><strong>Epochs: 1000</strong> - Number of times the entire training data loops through the network</li>
+                    <li><strong>Training Data: 5 samples</strong> - Students with scores and study hours</li>
+                </ul>
+            </div>
+            
+            <h4>Example Prediction Flow</h4>
+            
+            <div class="highlight-box">
+                <p><strong>Input:</strong> Student with Score=90, Study Hours=20.5</p>
+                <p><strong>Step 1:</strong> [90, 20.5] × weights + bias → hidden_inputs</p>
+                <p><strong>Step 2:</strong> sigmoid(hidden_inputs) → [0.8, 0.6, 0.9, 0.7]</p>
+                <p><strong>Step 3:</strong> [0.8, 0.6, 0.9, 0.7] × weights + bias → output_inputs</p>
+                <p><strong>Step 4:</strong> softmax(output_inputs) → [0.2, 0.8]</p>
+                <p><strong>Output:</strong> 80% PASS, 20% FAIL → <strong>Prediction: PASS</strong> ✅</p>
+            </div>
+            
+            <h4>Features</h4>
+            
+            <ul>
+                <li><strong>✅ Pure NumPy Implementation:</strong> No TensorFlow or Keras required</li>
+                <li><strong>✅ Complete Training Loop:</strong> Forward pass, loss calculation, and backpropagation</li>
+                <li><strong>✅ Live Predictions:</strong> Enter new student data and get instant predictions with confidence scores</li>
+                <li><strong>✅ Loss Tracking:</strong> Monitor training progress every 200 epochs</li>
+                <li><strong>✅ Matrix Operations:</strong> Efficient batch processing using NumPy arrays</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const neurons = document.querySelectorAll('.neuron');
+            const connections = document.querySelectorAll('.connection');
+            
+            // Detect if device supports touch
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            // --- 1. Animate neurons fading in ---
+            neurons.forEach((neuron, index) => {
+                neuron.style.opacity = '0';
+                setTimeout(() => {
+                    neuron.style.transition = 'opacity 0.5s ease';
+                    neuron.style.opacity = '1';
+                }, index * 100);
+            });
+
+            // --- 2. Smart connection highlighting ---
+            function highlightConnections(neuronId) {
+                // Fade out ALL connections first
+                connections.forEach(conn => {
+                    conn.style.opacity = '0.1';
+                    conn.classList.remove('highlight');
+                });
+                
+                // Select and highlight only the connected lines
+                const relevantConnections = document.querySelectorAll(`.${neuronId}`);
+                relevantConnections.forEach(conn => {
+                    conn.style.opacity = '1';
+                    conn.classList.add('highlight');
+                });
+            }
+            
+            function resetConnections() {
+                connections.forEach(conn => {
+                    conn.style.opacity = '0.6';
+                    conn.classList.remove('highlight');
+                });
+            }
+            
+            neurons.forEach(neuron => {
+                if (isTouchDevice) {
+                    // Touch events for mobile
+                    neuron.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        const neuronId = neuron.id;
+                        highlightConnections(neuronId);
+                    });
+                    
+                    neuron.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        setTimeout(resetConnections, 1000); // Keep highlighted for 1 second
+                    });
+                } else {
+                    // Mouse events for desktop
+                    neuron.addEventListener('mouseenter', () => {
+                        const neuronId = neuron.id;
+                        highlightConnections(neuronId);
+                    });
+                    
+                    neuron.addEventListener('mouseleave', () => {
+                        resetConnections();
+                    });
+                }
+            });
+            
+            // Reset on touch outside neurons
+            if (isTouchDevice) {
+                document.addEventListener('touchstart', (e) => {
+                    if (!e.target.classList.contains('neuron')) {
+                        resetConnections();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
