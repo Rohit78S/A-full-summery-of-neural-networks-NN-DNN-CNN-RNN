@@ -1,5 +1,7 @@
 My AI Learning Journey: Neural Networks from Scratch in NumPy
 
+https://neuralnetworknromscratchinnumpy.netlify.app/
+
 This repository is a log of my intensive journey to build a complete deep learning framework from the ground up, using only NumPy.
 
 This repo contains the evolution of that work, from a simple 2-layer network to a complete, Numba-accelerated Convolutional Neural Network (CNN) that can train on the MNIST dataset.
