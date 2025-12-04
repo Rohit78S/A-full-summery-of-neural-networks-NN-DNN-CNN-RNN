@@ -1,3 +1,4 @@
+this is only basic
 My AI Learning Journey: Neural Networks from Scratch in NumPy
 
 https://neuralnetworknromscratchinnumpy.netlify.app/
